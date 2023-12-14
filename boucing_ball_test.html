@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+
+<html>
+
+    <body>
+        <!-- the canvas id is just a name for the canvas object -->
+        <canvas id = "myCanvas" style = "border: 2px solid;"></canvas>
+
+<!-- this script tag shows where my javascript code goes -->
+        <script>
+            // canvas setup ------------------------------------------------------------------
+
+            let canvas = document.getElementById("myCanvas")
+
+            let c = canvas.getContext('2d');
+
+            canvas.width = window.innerWidth - 20;
+            canvas.height = window.innerHeight - 100;
+            
+            //the unit length of our simulation
+            let simMinWidth = 20;
+            //the scale factor to canvas units from simulation units
+            let cScale = Math.min(canvas.width, canvas.height)/simMinWidth;
+
+            let simWidth = canvas.width/cScale;
+            let simHeight = canvas.height/cScale;
+
+            //canvas scale pos (x,y), do canvas.height - ball pos since simulation axes is bottom left, but
+            //canvas axes is top left. 
+            function cX(pos){
+                return pos.x * cScale
+            }
+
+            function cY(pos){
+                return canvas.height - pos.y*cScale
+            }
+
+            // Scene -----------------------------------------------------------------------
+
+            let gravity = {x : 0.0, y : -9.8};
+            let timeStep = 1.0 / 60.0 ; //dt
+
+//add a velocity component to the ball object
+            let ball = {
+                radius : .2,
+                pos : {x : .2, y : .2},
+                vel : {x : Math.random()*30, y : Math.random()*30},
+
+                // draw(){
+                //     //resets the canvas every frame so there's no ovverlapping objects
+                //     c.clearRect(0,0,canvas.width,canvas.height);
+
+                //     c.fillStyle = "#FF0000";
+
+                //     //we are just drawing the ball, the arc function just draws a cicle where the ball should be
+                //     c.beginPath();
+                //     c.arc(
+                //         cX(this.pos), cY(this.pos), this.radius*cScale, 0.0, 2.0*Math.PI);
+                //     c.closePath();
+                //     c.fill();
+
+
+                // },
+                
+                //i can create object functions without using the keyword function, and use this.
+                //when referring to one of the object's functions
+                simulate(){
+                    this.vel.x += gravity.x * timeStep
+                    this.vel.y += gravity.y * timeStep
+                    
+                    this.pos.x += this.vel.x * timeStep 
+                    this.pos.y += this.vel.y * timeStep
+
+                    if(this.pos.x + this.radius > simWidth){
+                        this.vel.x = -this.vel.x
+                    }
+                    if(this.pos.x - this.radius < 0){
+                        this.vel.x = -this.vel.x
+                    }
+
+                    if(this.pos.y + this.radius > simHeight){
+                        this.vel.y = -this.vel.y
+                    }
+                    if(this.pos.y - this.radius < 0){
+                        this.vel.y = -this.vel.y
+                        this.pos.y = this.radius
+                    }
+                }
+            }
+
+            // Drawing -----------------------------------------------------------------------
+
+            function draw(){
+                //resets the canvas every frame so there's no ovverlapping objects
+                c.clearRect(0,0,canvas.width,canvas.height);
+
+                c.fillStyle = "#FF0000";
+
+                //we are just drawing the ball, the arc function just draws a cicle where the ball should be
+                c.beginPath();
+                c.arc(
+                    cX(ball.pos), cY(ball.pos), ball.radius*cScale, 0.0, 2.0*Math.PI);
+                c.closePath();
+                c.fill();
+
+
+            }
+
+            function simulate(){
+                ball.vel.x += gravity.x * timeStep
+                ball.vel.y += gravity.y * timeStep
+                
+                ball.pos.x += ball.vel.x * timeStep 
+                ball.pos.y += ball.vel.y * timeStep
+
+                if(ball.pos.x + ball.radius > simWidth){
+                    ball.vel.x = -ball.vel.x
+                }
+                if(ball.pos.x - ball.radius < 0){
+                    ball.vel.x = -ball.vel.x
+                }
+
+                if(ball.pos.y + ball.radius > simHeight){
+                    ball.vel.y = -ball.vel.y
+                }
+                if(ball.pos.y - ball.radius < 0){
+                    ball.vel.y = -ball.vel.y
+                    ball.pos.y = ball.radius
+                }
+            }
+
+            // running 
+
+            function update(){
+
+                simulate();
+                draw();
+                requestAnimationFrame(update);
+            }
+
+            update();
+
+        
+        </script>
+        
+    </body>
+    
+
+
+</html>
